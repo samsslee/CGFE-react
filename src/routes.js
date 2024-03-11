@@ -25,6 +25,7 @@ import Maps from "views/Map.js";
 import UserPage from "views/User.js";
 import UpgradeToPro from "views/Upgrade.js";
 import Resume from "views/Resume";
+import TestQueryPage from "views/TestQueryEmbedding";
 
 var routes = [
   {
@@ -32,6 +33,13 @@ var routes = [
     name: "Resume",
     icon: "nc-icon nc-paper",
     component: <Resume />,
+    layout: "/admin",
+  },
+  {
+    path: "/test",
+    name: "Test Query Page",
+    icon: "nc-icon nc-vector",
+    component: <TestQueryPage />,
     layout: "/admin",
   },
   {
