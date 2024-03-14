@@ -26,6 +26,7 @@ import UserPage from "views/User.js";
 import UpgradeToPro from "views/Upgrade.js";
 import Resume from "views/Resume";
 import TestQueryPage from "views/TestQueryEmbedding";
+import CoverLetter from "views/CoverLetter";
 
 var routes = [
   {
@@ -33,6 +34,13 @@ var routes = [
     name: "Resume",
     icon: "nc-icon nc-paper",
     component: <Resume />,
+    layout: "/admin",
+  },
+  {
+    path: "/cover-letter",
+    name: "Create Cover Letter",
+    icon: "nc-icon nc-atom",
+    component: <CoverLetter />,
     layout: "/admin",
   },
   {

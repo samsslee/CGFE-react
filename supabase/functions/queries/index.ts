@@ -76,7 +76,7 @@ serve(async (req) => {
     //create prompt (system statement, relevant documents, question)
 
     const prompt = stripIndent `${oneLine`
-        Write a cover letter based on the job description and my experience description
+        Write a cover letter based on the job description and my experience description. 
         `}
 
         Job description: """
