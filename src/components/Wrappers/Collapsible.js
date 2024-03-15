@@ -1,7 +1,7 @@
 import { Button, Card, Row, Col, CardBody, Input } from "reactstrap";
 import { useState } from "react";
 
-const Collapsible =(props)=>{
+const Collapsible =({label, children})=>{
     const [open, setOPen] = useState(true);
 
     const toggle = () => {
@@ -12,13 +12,12 @@ const Collapsible =(props)=>{
         <Card>
             <CardBody>
                 <Row>
-                    <Col className="pl-1" md="10">
-                        <h4>{props.label}</h4>
+                    <Col className="pl-3" md="10">
+                        <h4>{label}</h4>
                     </Col>
-                    <Col className="pr-1 d-flex justify-content-end" md="2">
+                    <Col className="pr-3 d-flex justify-content-end" md="2">
                         <Button outline
                         onClick={toggle}
-                        className="btn-round"
                         color="Secondary"
                         >
                         <i className={`nc-icon ${open ? 'nc-minimal-up' : 'nc-minimal-down'}`} />
@@ -26,14 +25,7 @@ const Collapsible =(props)=>{
                     </Col>
                 </Row>
                 {open && <div>
-                    <Input
-                        id = "job-description"
-                        name="text"
-                        type="textarea"
-                        />
-                    <Button>
-                        Analyze
-                    </Button>
+                    {children}
                     </div>}
             </CardBody>
         
