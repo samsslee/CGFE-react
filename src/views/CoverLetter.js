@@ -12,8 +12,10 @@ function CoverLetter() {
   const [jobDescription, setJobDescription] = useState('')
   const [hiringCompany, setHiringCompany] = useState('')
   const [positionTitle, setPositionTitle] = useState('')
-  const [characteristics, setCharacteristics] = useState(["sample skill a","sample skill b"])
-  const [toggleStates, setToggleStates] = useState([]);
+  const [characteristics, setCharacteristics] = useState(["3 years of javascript experience","leadership skills"])
+  const [toggleStates, setToggleStates] = useState([true, true]);
+  const [additionalInfo, setAdditionalInfo] = useState('')
+  const [coverLetter, setCoverLetter] = useState('test')
 
   useEffect(() => {
     // Initialize toggle states when characteristics change
@@ -21,7 +23,7 @@ function CoverLetter() {
   }, [characteristics]);
 
   
-  const handleSubmit = async (e)=>{
+  const handleSubmitAnalyze = async (e)=>{
     e.preventDefault()
     const {data, error} = await supabase.functions.invoke('job-desc-analysis', {
         body: JSON.stringify({query: jobDescription})
@@ -34,9 +36,8 @@ function CoverLetter() {
     setHiringCompany(data.Company_Name)
     setPositionTitle(data.Job_Title)
     setCharacteristics(data.Skills_and_Key_Characteristics_of_Candidate)
-    setToggleStates(Array(characteristics.length).fill(true))
+    //setToggleStates(Array(characteristics.length).fill(true))
   }
-
 
   // Function to handle toggle switch change
   const handleToggleChange = (index) => {
@@ -44,12 +45,38 @@ function CoverLetter() {
     newToggleStates[index] = !newToggleStates[index];
     setToggleStates(newToggleStates);
   };
+
+  const handleSubmitGenerate = async (e)=>{
+    e.preventDefault()
+
+    const relevantCharacteristics = characteristics.filter((char, index) => {
+      return toggleStates[index];
+    });
+
+    console.log(hiringCompany, positionTitle, relevantCharacteristics, additionalInfo)
+
+    const {data, error} = await supabase.functions.invoke('generate-cover-letter', {
+      body: JSON.stringify({
+        hiringCompany: hiringCompany,
+        positionTitle: positionTitle,
+        characteristics: relevantCharacteristics,
+        additionalInfo: additionalInfo
+      })
+    })
+
+    if(error){
+      console.log(error)
+    }
+    console.log(data)
+    setCoverLetter(data)
+
+  }
   
     return (
       <>
         <div className="content">
           <Collapsible label="Job Description">
-            <Form onSubmit={handleSubmit}>
+            <Form id="paste-job-description" onSubmit={handleSubmitAnalyze}>
             <Input
                   id = "job-description"
                   placeholder="Paste Job Description"
@@ -70,16 +97,16 @@ function CoverLetter() {
             </Form>
           </Collapsible>
           <Collapsible label="Adjust Parameters">
-                <Form>
+                <Form id="adjust-parameters" onSubmit={handleSubmitGenerate}>
                   <FormGroup>
                   <Row>
                     <Col md='4'>
                     <label>Hiring Company</label>
-                      <Input defaultValue={hiringCompany}/>
+                      <Input value={hiringCompany} onChange={(e) => setHiringCompany(e.target.value)}/>
                     </Col>
                     <Col md='4'>
                     <label>Position Title</label>
-                      <Input defaultValue={positionTitle}/>
+                      <Input value={positionTitle} onChange={(e) => setPositionTitle(e.target.value)}/>
                     </Col>
                   </Row>
                   </FormGroup>
@@ -103,8 +130,10 @@ function CoverLetter() {
                     <Row>
                     <Col md='12'>
                       <Input
-                        id = "final-notes"
+                        id = "additional-info"
                         placeholder="Anything else you want the AI to know?"
+                        value={additionalInfo}
+                        onChange={(e) => {setAdditionalInfo(e.target.value)}}
                         type="textarea"
                         style={{ 
                           minHeight: "100px",
@@ -123,7 +152,9 @@ function CoverLetter() {
           <Card>
             <CardBody>
               <h4>Cover Letter</h4>
-              <p>here is the cover letter!</p>
+              <p id="cover-letter">
+                {coverLetter}
+              </p>
             </CardBody>
           </Card>              
         </div>
