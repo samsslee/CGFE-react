@@ -39,13 +39,13 @@ serve(async (req: { method: string; json: () => PromiseLike<{ position_title: an
     //     })
 
     // } else {
-    const responses = await supabase.rpc('create_resume_entry_test',{
+    const responses = await supabase.rpc('create_resume_entry',{
         position_title: position_title,
         company_name: company_name,
         start_date: start_date,
         end_date: end_date,
         description: description,
-        embeddings: JSON.stringify(embeddings), //should NEVER be empty
+        embeddings: embeddings, //should NEVER be empty
     })
 
     return new Response( JSON.stringify(responses), {
@@ -68,7 +68,7 @@ const embedDescription = async function(description: string){
         });
 
         let { embedding } = embeddingResponse.data[0]
-        embeddings.push(embedding)
+        embeddings.push(JSON.stringify(embedding))
     }
 
     return embeddings;
