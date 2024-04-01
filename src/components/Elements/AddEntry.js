@@ -22,8 +22,8 @@ function AddEntry() {
 
   const navigate = useNavigate()
 
-  const [position, setPosition] = useState('')
-  const [company, setCompany] = useState('')
+  const [position_title, setPositionTitle] = useState('')
+  const [company_name, setCompanyName] = useState('')
   const [start_date, setStartDate] = useState('')
   const [end_date, setEndDate] = useState('')
   const [description, setDescription] = useState('')
@@ -32,15 +32,22 @@ function AddEntry() {
   const handleSubmit = async (e)=>{
     e.preventDefault()
 
-    if(!position || !company || !start_date || !description){
+    if(!position_title || !company_name || !start_date || !description){
       setFormError('Please fill out all the required fields')
       return
     }
-
-    const {data, error} = await supabase
-      .from('resume_entries')
-      .insert([{position, company, start_date, end_date, description}])
-      .select()
+    
+    const {data, error} = await supabase.functions.invoke('create-update-embed', {
+      body: JSON.stringify({
+        position_title: position_title,
+        company_name: company_name,
+        start_date: start_date,
+        end_date: end_date,
+        description: description,
+        embed_description:true,
+        resume_entry_id:null
+      })
+    })
 
     if(error){
       console.log(error)
@@ -70,8 +77,8 @@ function AddEntry() {
                   <label>Position Title</label>
                   <Input
                     placeholder="eg. Assistant to the Regional Manager"
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
+                    value={position_title}
+                    onChange={(e) => setPositionTitle(e.target.value)}
                     type="text"
                   />
                 </FormGroup>
@@ -80,9 +87,9 @@ function AddEntry() {
                 <FormGroup>
                   <label>Company Name</label>
                   <Input
-                    placeholder="ABC Company"
-                    onChange={(e) => setCompany(e.target.value)}
-                    value={company}
+                    placeholder="ABC Company_name"
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    value={company_name}
                     type="text"
                   />
                 </FormGroup>

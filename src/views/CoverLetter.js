@@ -31,12 +31,10 @@ function CoverLetter() {
     if(error){
       console.log(error)
     }
-    console.log(data)
-    console.log(data.Skills_and_Key_Characteristics_of_Candidate)
     setHiringCompany(data.Company_Name)
     setPositionTitle(data.Job_Title)
     setCharacteristics(data.Skills_and_Key_Characteristics_of_Candidate)
-    //setToggleStates(Array(characteristics.length).fill(true))
+    setToggleStates(Array(characteristics.length).fill(true))
   }
 
   // Function to handle toggle switch change

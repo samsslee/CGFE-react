@@ -52,11 +52,11 @@ function ResumeEntry({entry}) {
               <Row>
                 <Col className="pr-1" md="4">
                     <label>Position Title</label>
-                    <p>{entry.position}</p>
+                    <p>{entry.position_title}</p>
                 </Col>
                 <Col className="px-1" md="4">
                     <label>Company Name</label>
-                    <p>{entry.company}</p>
+                    <p>{entry.company_name}</p>
                 </Col>
                 <Col className="pl-1" md="2">
                       <label>Start Date</label>

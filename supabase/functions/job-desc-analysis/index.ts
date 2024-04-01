@@ -15,7 +15,7 @@ serve(async (req) => {
 
 
     const prompt = stripIndent `${oneLine`
-    Return a JSON object with three key value pairs like so: {"Company_Name": "", "Job_Title": "", "Skills_and_Key_Characteristics_of_Candidiate":[comma, separated, list]"}
+    Return a JSON object with three key value pairs like so: {"Company_Name": "", "Job_Title": "", "Skills_and_Key_Characteristics_of_Candidate":[comma, separated, list]"}
     Fill in the blanks based on the Job Description Below. Do not return anything other than a JSON object.
     `}
 

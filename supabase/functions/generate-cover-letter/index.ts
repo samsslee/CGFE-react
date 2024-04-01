@@ -71,9 +71,9 @@ const compileRelevantExperience = async(positionTitle: string, characteristics: 
     //get the relevant documents
     //rpc: SQL function in supabase
 
-    const { data: descStatments, error } = await supabase.rpc('match_testembeds',{
+    const { data: descStatments, error } = await supabase.rpc('match_resume_description_embeddings',{
         query_embedding: embedding,
-        match_threshold: .73, //TODO: this needs to be adjusted in the future
+        match_threshold: .5, //TODO: this needs to be adjusted in the future
         match_count: 10
     })
 
@@ -87,15 +87,15 @@ const compileRelevantExperience = async(positionTitle: string, characteristics: 
 
     for(let i = 0; i<descStatments.length; i++){
         const descStatment = descStatments[i]
-        const content = descStatment.content;
-        const encoded = tokenizer.encode(content)
+        const description = descStatment.description;
+        const encoded = tokenizer.encode(description)
         tokenCount += encoded.text.length
 
         if (tokenCount > 1500){
             break
         }
 
-        relevantExperience += `${content.trim()} ---\n`
+        relevantExperience += `${description.trim()} ---\n`
     }
     return relevantExperience
 }
