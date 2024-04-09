@@ -32,6 +32,7 @@ serve(async (req: { method: string; json: () => PromiseLike<{ position_title: an
     //     })
 
     // } else {
+        //need to redeploy with {data, error}, probably
     const responses = await supabase.rpc('create_resume_entry',{
         position_title: position_title,
         company_name: company_name,

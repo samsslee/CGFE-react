@@ -1,6 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import supabase from "config/supabaseClient";
 
 // reactstrap components
@@ -9,7 +8,6 @@ import {
   Card,
   CardHeader,
   CardBody,
-  CardFooter,
   CardTitle,
   FormGroup,
   Form,
@@ -18,21 +16,19 @@ import {
   Col,
 } from "reactstrap";
 
-function AddEntry() {
-
-  const navigate = useNavigate()
+function AddEntry({onCreate}) {
 
   const [position_title, setPositionTitle] = useState('')
   const [company_name, setCompanyName] = useState('')
   const [start_date, setStartDate] = useState('')
   const [end_date, setEndDate] = useState('')
-  const [description, setDescription] = useState('')
+  const [description_box, setDescription] = useState('')
   const [formError, setFormError] = useState(null)
 
   const handleSubmit = async (e)=>{
     e.preventDefault()
 
-    if(!position_title || !company_name || !start_date || !description){
+    if(!position_title || !company_name || !start_date || !description_box){
       setFormError('Please fill out all the required fields')
       return
     }
@@ -43,23 +39,43 @@ function AddEntry() {
         company_name: company_name,
         start_date: start_date,
         end_date: end_date,
-        description: description,
+        description: description_box,
         embed_description:true,
         resume_entry_id:null
       })
     })
 
+    console.log(data.data, error, data.error)
+
     if(error){
-      console.log(error)
+      console.error(error)
       setFormError("there is an error with saving the data to the DB")
     }
+    //need to deal with whether or not this error logging works.
 
-    if(data){
-      console.log(data)
+    if(data.data){
+      let newEntry = {
+        id: data.data.id, 
+        position_title: data.data.position_title,
+        company_name: data.data.company_name,
+        start_date: data.data.start_date,
+        end_date: data.data.end_date,
+        description_list: data.data.descriptions
+      }
+
       setFormError(null)
-      navigate('/')
+      onCreate(newEntry)
+      resetForm()
     }
 
+  }
+
+  const resetForm = () =>{
+    setPositionTitle('')
+    setCompanyName('')
+    setStartDate('')
+    setEndDate('')
+    setDescription('')
   }
 
 
@@ -123,7 +139,7 @@ function AddEntry() {
                   <label>Description</label>
                   <Input
                     type="textarea"
-                    value={description}
+                    value={description_box}
                     placeholder="Increased Revenue by 40%"
                     onChange={(e) => setDescription(e.target.value)}
                   />
