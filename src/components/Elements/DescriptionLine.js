@@ -28,18 +28,28 @@ function DescriptionLine({description_line}) {
     setIsEditing(false);
   };
 
+  const handleCancelClick = () => {
+    setDescription(description_line.description)
+    setIsEditing(false)
+  }
+
   return (
     <div>
       {isEditing ? (
         <div className="d-flex">
           <Input type="text" value={descriptionLine} onChange={(e) => setDescription(e.target.value)} />
-          <Button color="primary" onClick={handleSaveClick} className="ml-2">Save</Button>
+          <Button color="primary" onClick={handleSaveClick} className="ml-2">
+            <i className="nc-icon nc-check-2" />
+          </Button>
+          <Button color="secondary" onClick={handleCancelClick} className="ml-2">
+            <i className="nc-icon nc-refresh-69" />
+          </Button>
         </div>
       ) : (
         <div className="d-flex justify-content-between">
           <p className="mb-0 mr-2">{descriptionLine}</p>
           <div className="d-flex">
-            <Button color="info" onClick={handleUpdateClick} className="mr-2">
+            <Button color="primary" onClick={handleUpdateClick} className="mr-2">
               <i className="nc-icon nc-ruler-pencil" />
             </Button>
             <Button color="danger" onClick={handleDeleteClick}>

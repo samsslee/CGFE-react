@@ -114,7 +114,7 @@ function ResumeEntry({entry, onDelete}) {
                   </Button>
 
                   <Modal size='xl' isOpen={updateEntryModal} toggle={toggle}>
-                        <ModalHeader toggle={toggle}>Update this Entry</ModalHeader>
+                        <ModalHeader toggle={toggle}>Update This Entry</ModalHeader>
                         <ModalBody>
                             <UpdateEntry entry = {{
                               id: entry.id,

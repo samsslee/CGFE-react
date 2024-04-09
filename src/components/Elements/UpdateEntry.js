@@ -25,6 +25,7 @@ function UpdateEntry({entry}) {
   const [start_date, setStartDate] = useState(entry.start_date)
   const [end_date, setEndDate] = useState(entry.end_date)
   const [description_list, setDescription] = useState(entry.description_list)
+  const [new_description, setNewDescription] = useState("")
   const [formError, setFormError] = useState(null)
   const [isEditing, setIsEditing] = useState(false);
 
@@ -83,6 +84,13 @@ function UpdateEntry({entry}) {
     // }
 
   }
+  const handleCancelClick = () => {
+    setPosition(entry.position_title)
+    setCompany(entry.company_name)
+    setStartDate(entry.start_date)
+    setEndDate(entry.end_date)
+    setIsEditing(false)
+  }
 
 
   return (
@@ -90,7 +98,7 @@ function UpdateEntry({entry}) {
         <CardBody>
           <Form onSubmit={handleSubmit}>
             <Row>
-              <Col className="pr-1" md="4">
+              <Col className="pr-1" md="3">
                 <FormGroup>
                   <label>Position Title</label>
                   {isEditing ? (                  
@@ -151,19 +159,23 @@ function UpdateEntry({entry}) {
                     )}
                   </FormGroup>
               </Col>
-              <Col className="pt-3" md="1">
+              <Col className="pt-3" md="2">
                 <div className="update ml-auto mr-auto">
                   {isEditing ? (
+                    <div>
                     <Button
                     onClick={() => setIsEditing(false)}
-                    className="btn-round"
                     color="primary"
                     // type="submit"
                     >
-                      Save
+                      <i className="nc-icon nc-check-2" />
                     </Button>
+                    <Button color="secondary" onClick={handleCancelClick} className="mr-2">
+                      <i className="nc-icon nc-refresh-69" />
+                    </Button>
+                    </div>
                   ):(
-                    <Button color="info" onClick={()=>{setIsEditing(true)}} className="mr-2">
+                    <Button color="primary" onClick={()=>{setIsEditing(true)}} className="mr-2">
                     <i className="nc-icon nc-ruler-pencil" />
                   </Button>
                   )}
@@ -189,6 +201,27 @@ function UpdateEntry({entry}) {
                     onChange={(e) => setDescription(e.target.value)}
                   /> */}
                 </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col md="10">
+                <FormGroup>
+                  <Input
+                    placeholder="Add another description bullet"
+                    value={new_description}
+                    type="text"
+                  />
+                </FormGroup>
+              </Col>
+              <Col md="2" className="d-flex justify-content-end">
+              <div className="d-flex">
+                <Button color="primary" className="mr-2">
+                  <i className="nc-icon nc-simple-add" />
+                </Button>
+                <Button color="secondary">
+                  <i className="nc-icon nc-refresh-69" />
+                </Button>
+                </div>
               </Col>
             </Row>
             <Row>{formError && (<p>{formError}</p>)}</Row>
