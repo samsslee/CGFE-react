@@ -17,7 +17,6 @@
 
 */
 import React from "react";
-import supabase from "config/supabaseClient";
 import { useEffect, useState } from "react";
 
 import ResumeEntry from "components/Elements/ResumeEntry";
@@ -27,29 +26,76 @@ function Resume() {
 
   const [fetchError, setFetchError] = useState(null)
   const [entries, setEntries] = useState(null)
-  const [orderBy, setOrderBy] = useState('end_date')
+  //const [orderBy, setOrderBy] = useState('start_date')
+
+  const handleCreate = (entry) =>{
+    setEntries(prevEntries => {
+      // Check if entries is null or undefined
+      if (!prevEntries) {
+        return [entry]
+      } else {
+        // If entries already has data, append the new entry to the existing array
+        return [...prevEntries, entry];
+      }
+    });
+  }
+
+  const handleDelete = (id) => {
+    setEntries(prevEntries => {
+      return prevEntries.filter(entry => entry.id != id)
+    })
+  }
 
   useEffect(()=>{
+    const fetchEntries = async () => {
+      console.log("resume.js useEffect fired", Date.now())
+      try {
+        const response = await fetch(`${process.env.REACT_APP_SUPABASE_URL}/graphql/v1`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': process.env.REACT_APP_ANON_KEY
+          },
+          body: JSON.stringify({
+            query: `
+              query{
+                resume_entriesCollection{
+                  edges{
+                    node{
+                      id,
+                      position_title,
+                      company_name,
+                      start_date,
+                      end_date
+                      resume_description_embeddingsCollection{
+                        edges{
+                          node{
+                            id,
+                            description
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `
+          })
+        });
 
-    const fetchEntries = async ()=>{
-      const {data, error} = await supabase
-        .from('resume_entries')
-        .select()
-        .order(orderBy, {ascending: false})
+        const {data} = await response.json();
+        let dbEntries = data.resume_entriesCollection.edges.map(item => {
+          return item.node;
+        });
+        console.log(dbEntries)
+        setEntries(dbEntries)
+      } catch (error) {
+        console.log(error)
+        setFetchError("there was a problem fetching your resume entries")
+      }
+    };
 
-        if(error) {
-          setFetchError('could not fetch')
-          console.log(error)
-          setEntries(null)
-        }
-        if(data) {
-          setEntries(data)
-          setFetchError(null)
-        }
-
-    }
-
-    fetchEntries()
+    fetchEntries();
 
   },[])
 
@@ -60,9 +106,9 @@ function Resume() {
         {entries && (
           <div>
             {entries.map(entry => (
-              <ResumeEntry key = {entry.id} entry = {entry}/>
+              <ResumeEntry key = {entry.id} entry = {entry} onDelete = {handleDelete}/>
             ))}
-            <AddEntry/>
+            <AddEntry onCreate = {handleCreate}/>
           </div>
         )}
       </div>

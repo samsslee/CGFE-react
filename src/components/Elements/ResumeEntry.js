@@ -4,29 +4,51 @@ import React from "react";
 import {
   Button,
   Card,
-  CardHeader,
   CardBody,
-  CardFooter,
-  CardTitle,
-  FormGroup,
   Form,
-  Input,
   Row,
   Col,
   Modal, ModalHeader, ModalBody, ModalFooter
 } from "reactstrap";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UpdateEntry from "./UpdateEntry";
 import supabase from "config/supabaseClient";
 import { useNavigate } from "react-router-dom";
 
 
-function ResumeEntry({entry}) {
+function ResumeEntry({entry, onDelete}) {
     const navigate = useNavigate()
 
     const [updateEntryModal, setModal] = useState(false);
     const toggle = () => setModal(!updateEntryModal);
+
+    const [concatenatedDescriptions, setConcatenatedDescriptions] = useState('');
+
+    useEffect(() => {
+
+      //description_list is when it's been cleaned after we heard the response back from the db when we created
+      //description embeddings collection is when it came straight from the DB
+        const fetchDescriptions = async () => {
+            if (entry.resume_description_embeddingsCollection && entry.resume_description_embeddingsCollection.edges) {
+              let descriptions_array = []
+              entry.description_list = []
+              entry.resume_description_embeddingsCollection.edges.map(desc => {
+                descriptions_array.push(desc.node.description)
+                entry.description_list.push({description_id:desc.node.id, description: desc.node.description})
+              });
+              setConcatenatedDescriptions(descriptions_array.join('\n'));
+            } else if (entry.description_list && !entry.resume_description_embeddingsCollection){
+              let descriptions_array = entry.description_list.map(description => description.description)
+              setConcatenatedDescriptions(descriptions_array.join('\n'))
+            } else {
+              entry.description_list = [{description_id:"", description:""}]
+            }
+        };
+
+        fetchDescriptions();
+    }, [entry]);
+
 
     const handleDelete = async () =>{
         const {data, error} = await supabase
@@ -36,12 +58,12 @@ function ResumeEntry({entry}) {
             .select()
 
         if(error){
-            console.log(error)
+            console.error(error)
         }
 
         if(data){
             console.log(data)
-            navigate('/')
+            onDelete(entry.id)
         }
     }
 
@@ -70,7 +92,7 @@ function ResumeEntry({entry}) {
               <Row>
                 <Col md="12">
                     <label>Description</label>
-                    <p>{entry.description}</p>
+                    <p>{concatenatedDescriptions}</p>
                 </Col>
               </Row>
               <Row>
@@ -91,16 +113,19 @@ function ResumeEntry({entry}) {
                     <i className="nc-icon nc-simple-remove" /> Delete
                   </Button>
 
-                  <Modal size='xl' isOpen={updateEntryModal} toggle={toggle} {...entry}>
-                        <ModalHeader toggle={toggle}>Modal title</ModalHeader>
+                  <Modal size='xl' isOpen={updateEntryModal} toggle={toggle}>
+                        <ModalHeader toggle={toggle}>Update this Entry</ModalHeader>
                         <ModalBody>
-                            <UpdateEntry entryid = {entry.id}/>
-                            {/* MAKE THIS PASS THROUGH EVERYTHING SO YOU DONT HAVE TO REFETCH */}
+                            <UpdateEntry entry = {{
+                              id: entry.id,
+                              position_title: entry.position_title,
+                              company_name: entry.company_name,
+                              start_date: entry.start_date,
+                              end_date: entry.end_date,
+                              description_list: entry.description_list
+                            }}/>
                         </ModalBody>
                         <ModalFooter>
-                        <Button color="primary" onClick={toggle}>
-                            Do Something
-                        </Button>{' '}
                         <Button color="secondary" onClick={toggle}>
                             Cancel
                         </Button>
