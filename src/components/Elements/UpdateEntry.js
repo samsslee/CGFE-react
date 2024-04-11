@@ -1,6 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import supabase from "config/supabaseClient";
 import DescriptionLine from "./DescriptionLine";
 
@@ -8,95 +7,129 @@ import DescriptionLine from "./DescriptionLine";
 import {
   Button,
   Card,
+  CardHeader,
+  CardTitle,
   CardBody,
   FormGroup,
   Form,
   Input,
   Row,
   Col,
+  CardFooter,
 } from "reactstrap";
 
-function UpdateEntry({entry}) {
+function UpdateEntry({entry, onUpdate}) {
 
-  const navigate = useNavigate()
 
-  const [position_title, setPosition] = useState(entry.position_title)
-  const [company_name, setCompany] = useState(entry.company_name)
+  const [position_title, setPositionTitle] = useState(entry.position_title)
+  const [company_name, setCompanyName] = useState(entry.company_name)
   const [start_date, setStartDate] = useState(entry.start_date)
   const [end_date, setEndDate] = useState(entry.end_date)
-  const [description_list, setDescription] = useState(entry.description_list)
+  const [description_list, setDescriptionList] = useState(entry.description_list)
   const [new_description, setNewDescription] = useState("")
-  const [formError, setFormError] = useState(null)
+  const [formError, setFormError] = useState(null) //make this function!
   const [isEditing, setIsEditing] = useState(false);
+  const [buttonsDisabled, setButtonsDisabled] = useState(false)
 
+  const addNewDescription = async ()=>{
+    if(new_description == ""){
+      return
+    }
+    setButtonsDisabled(true)
+    const {data, error} = await supabase.functions.invoke('create-update-description', {
+      body: JSON.stringify({
+        description: new_description,
+        resume_entry_id: entry.id,
+        description_id: null
+      })
+    })
+    if (error){ console.error(error)}
+    if (data){
+      const addedDescription = {description_id: data.data.id, description: data.data.description}
+      handleNewDescription(addedDescription)
+      setNewDescription("")
+    }
+    setButtonsDisabled(false)
+  }
 
-  // useEffect(()=>{
-  //   // YOU DONT NEED TO DO THE REFETCHING BUT FIX IT LATER SEE RESUMEENTRY.JS FOR MORE NOTES
-  //   const fetchEntry = async()=>{
+  const handleNewDescription = (desc) =>{
+    setDescriptionList(prev => {
+      if (!prev) {
+        return [desc]
+      } else {
+        return [...prev, desc];
+      }
+    });
+  }
 
-  //     const {data, error} = await supabase
-  //     .from('resume_entries')
-  //     .select()
-  //     .eq('id', entryid)
-  //     .single()
-      
-  //     if(error){
-  //       console.log(error)
-  //       //need to handle error and navivation for redirecting out of this if there is an error
-  //     }
-  //     if(data){
-  //       setPosition(data.position_title)
-  //       setCompany(data.company_name)
-  //       setStartDate(data.start_date)
-  //       setEndDate(data.end_date)
-  //       setDescription(data.description)
-  //     }
-    
-  //   }
-  //   fetchEntry()
+  const handleEditEntry = async () => {
+    setIsEditing(true)
+    setButtonsDisabled(true)
+  }
 
-  // },[entryid])
-
-
-  const handleSubmit = async (e)=>{
-    e.preventDefault()
-
-    // if(!position_title || !company_name || !start_date || !description){
-    //   setFormError('Please fill out all the required fields')
-    //   return
-    // }
-
-    // const {data, error} = await supabase
-    //   .from('resume_entries')
-    //   .update([{position_title, company_name, start_date, end_date, description}])
-    //   .eq('id', entry.id)
-    //   .select()
-
-    // if(error){
-    //   console.log(error)
-    //   setFormError("there is an error with saving the data to the DB")
-    // }
-
-    // if(data){
+  const handleSaveEntry = async () => {
+    setButtonsDisabled(true)
+    const { data, error } = await supabase
+    .from('resume_entries')
+    .update({
+      position_title: position_title,
+      company_name: company_name,
+      start_date: start_date,
+      end_date: end_date
+    })
+    .eq('id', entry.id)
+    .select()
+    if (error){ //do error handling
+      console.error(error)
+    }
+    // if (data){
     //   console.log(data)
-    //   setFormError(null)
-    //   navigate('/')
     // }
+    setIsEditing(false)
+    setButtonsDisabled(false)
 
   }
-  const handleCancelClick = () => {
-    setPosition(entry.position_title)
-    setCompany(entry.company_name)
+
+  const handleDeleteDescription = (id) =>{
+    setDescriptionList(prev => {
+      return prev.filter(desc => desc.description_id != id)
+    });
+  }
+
+  const handleUpdateDescription = (id, newDescription) => {
+    setDescriptionList(prev => {
+      return prev.map(desc => {
+        if (desc.description_id === id) {
+          return { ...desc, description: newDescription };
+        }
+        return desc;
+      });
+    });
+  };
+
+  const handleUpdateFinished = () => {
+    onUpdate({
+      company_name: company_name,
+      position_title: position_title,
+      start_date:start_date,
+      end_date:end_date,
+      description_list: description_list})
+  }
+  
+  const handleResetEditing = () => {
+    setPositionTitle(entry.position_title)
+    setCompanyName(entry.company_name)
     setStartDate(entry.start_date)
     setEndDate(entry.end_date)
     setIsEditing(false)
+    setButtonsDisabled(false)
   }
-
 
   return (
       <Card className="card-user">
+        <CardHeader> <CardTitle tag="h3">Update This Entry</CardTitle> </CardHeader>
         <CardBody>
-          <Form onSubmit={handleSubmit}>
+          <Form>
             <Row>
               <Col className="pr-1" md="3">
                 <FormGroup>
@@ -105,7 +138,7 @@ function UpdateEntry({entry}) {
                   <Input
                     placeholder="eg. Assistant to the Regional Manager"
                     value={position_title}
-                    onChange={(e) => setPosition(e.target.value)}
+                    onChange={(e) => setPositionTitle(e.target.value)}
                     type="text"
                   />):(
                     <p>{position_title}</p>
@@ -119,7 +152,7 @@ function UpdateEntry({entry}) {
                   {isEditing ? (
                   <Input
                     placeholder="ABC Company"
-                    onChange={(e) => setCompany(e.target.value)}
+                    onChange={(e) => setCompanyName(e.target.value)}
                     value={company_name}
                     type="text"
                   />
@@ -164,18 +197,17 @@ function UpdateEntry({entry}) {
                   {isEditing ? (
                     <div>
                     <Button
-                    onClick={() => setIsEditing(false)}
+                    onClick={() => handleSaveEntry()}
                     color="primary"
-                    // type="submit"
                     >
                       <i className="nc-icon nc-check-2" />
                     </Button>
-                    <Button color="secondary" onClick={handleCancelClick} className="mr-2">
+                    <Button color="secondary" onClick={() => {handleResetEditing()}} className="mr-2">
                       <i className="nc-icon nc-refresh-69" />
                     </Button>
                     </div>
                   ):(
-                    <Button color="primary" onClick={()=>{setIsEditing(true)}} className="mr-2">
+                    <Button color="primary" onClick={()=>{handleEditEntry()}} className="mr-2">
                     <i className="nc-icon nc-ruler-pencil" />
                   </Button>
                   )}
@@ -187,19 +219,15 @@ function UpdateEntry({entry}) {
               <Col md="12">
                 <FormGroup>
                   <label>Description</label>
-                  {description_list.map(description => (
+                  {description_list.map(desc => (
                     <DescriptionLine
-                      key = {description.description_id}
-                      description_line = {description}
+                      key = {desc.description_id}
+                      entry_id = {entry.id}
+                      description_line = {desc} //includes key and description
+                      onDelete = {handleDeleteDescription}
+                      onUpdate = {handleUpdateDescription}
                       />
                   ))}
-                  {/* you need an on change for the description line */}
-                  {/* <Input
-                    type="textarea"
-                    value={description_list}
-                    placeholder="Increased Revenue by 40%"
-                    onChange={(e) => setDescription(e.target.value)}
-                  /> */}
                 </FormGroup>
               </Col>
             </Row>
@@ -208,23 +236,29 @@ function UpdateEntry({entry}) {
                 <FormGroup>
                   <Input
                     placeholder="Add another description bullet"
+                    onChange={(e) => setNewDescription(e.target.value)}
                     value={new_description}
                     type="text"
                   />
                 </FormGroup>
               </Col>
               <Col md="2" className="d-flex justify-content-end">
-              <div className="d-flex">
-                <Button color="primary" className="mr-2">
-                  <i className="nc-icon nc-simple-add" />
-                </Button>
-                <Button color="secondary">
-                  <i className="nc-icon nc-refresh-69" />
-                </Button>
+                <div className="d-flex">
+                  <Button color="primary" onClick={() => {addNewDescription()}}>
+                    <i className="nc-icon nc-simple-add" />
+                  </Button>
+                  <Button color="secondary" onClick={()=>setNewDescription("")}>
+                    <i className="nc-icon nc-refresh-69" />
+                  </Button>
                 </div>
               </Col>
             </Row>
             <Row>{formError && (<p>{formError}</p>)}</Row>
+            <CardFooter>
+              <Row className="justify-content-center">
+                <Button color="secondary" disabled ={buttonsDisabled} onClick = {() => handleUpdateFinished()}> Finish </Button>
+              </Row>
+            </CardFooter>
         </CardBody>
       </Card>
   )

@@ -48,7 +48,7 @@ function Resume() {
 
   useEffect(()=>{
     const fetchEntries = async () => {
-      console.log("resume.js useEffect fired", Date.now())
+      //console.log("resume.js useEffect fired", Date.now())
       try {
         const response = await fetch(`${process.env.REACT_APP_SUPABASE_URL}/graphql/v1`, {
           method: 'POST',
@@ -85,12 +85,19 @@ function Resume() {
 
         const {data} = await response.json();
         let dbEntries = data.resume_entriesCollection.edges.map(item => {
+          item.node.description_list = []
+          for (let edge of item.node.resume_description_embeddingsCollection.edges) {
+            item.node.description_list.push({
+              description_id: edge.node.id,
+              description: edge.node.description,
+            });
+          }
+          delete item.node.resume_description_embeddingsCollection;
           return item.node;
         });
-        console.log(dbEntries)
         setEntries(dbEntries)
       } catch (error) {
-        console.log(error)
+        //console.log(error)
         setFetchError("there was a problem fetching your resume entries")
       }
     };
