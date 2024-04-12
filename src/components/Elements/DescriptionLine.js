@@ -49,11 +49,11 @@ function DescriptionLine({entry_id, description_line, onDelete, onUpdate}) {
       {isEditing ? (
         <div className="d-flex">
           <Input type="text" value={descriptionLine} onChange={(e) => setDescription(e.target.value)} />
-          <Button color="primary" onClick={handleSaveClick} className="ml-2">
-            <i className="nc-icon nc-check-2" />
-          </Button>
           <Button color="secondary" onClick={handleCancelClick} className="ml-2">
             <i className="nc-icon nc-refresh-69" />
+          </Button>
+          <Button color="primary" onClick={handleSaveClick} className="ml-2">
+            <i className="nc-icon nc-check-2" />
           </Button>
         </div>
       ) : (
