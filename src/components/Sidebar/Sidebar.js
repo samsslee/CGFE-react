@@ -65,9 +65,7 @@ function Sidebar(props) {
           {props.routes.map((prop, key) => {
             return (
               <li
-                className={
-                  activeRoute(prop.path) + (prop.pro ? " active-pro" : "")
-                }
+                className={activeRoute(prop.path)}
                 key={key}
               >
                 <NavLink to={prop.layout + prop.path} className="nav-NavLink">
