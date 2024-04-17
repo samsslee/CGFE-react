@@ -26,26 +26,24 @@ function AddEntry({onCreate}) {
   const [formError, setFormError] = useState(null)
 
   const handleSubmit = async (e)=>{
-    e.preventDefault()
+    e.preventDefault() //consider not using a form submit
 
     if(!position_title || !company_name || !start_date || !description_box){
       setFormError('Please fill out all the required fields')
       return
     }
     
-    const {data, error} = await supabase.functions.invoke('create-update-embed', {
+    const {data, error} = await supabase.functions.invoke('create-entry', {
       body: JSON.stringify({
         position_title: position_title,
         company_name: company_name,
         start_date: start_date,
         end_date: end_date,
         description: description_box,
-        embed_description:true,
-        resume_entry_id:null
       })
     })
 
-    console.log(data.data, error, data.error)
+    //console.log(data.data, error, data.error)
 
     if(error){
       console.error(error)
