@@ -138,7 +138,10 @@ function CoverLetter() {
                   </Row>
                   </FormGroup>
                   
-                  <Button>
+                  <Button
+                    className="btn-round"
+                    color="primary"
+                    type="submit">
                       Generate
                   </Button>
                 </Form>
@@ -157,7 +160,11 @@ function CoverLetter() {
                   padding: "10px"
                 }}
               />
-              <Button>Save</Button>
+                <Button
+                className="btn-round"
+                color="primary"
+                type="submit">
+                  Save Changes</Button>
             </CardBody>
           </Card>              
         </div>
