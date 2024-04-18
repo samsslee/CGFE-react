@@ -1,6 +1,6 @@
 import React from "react";
 import supabase from "config/supabaseClient";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { Input, Button, Form, Card, Row, Col, CardBody, FormGroup } from "reactstrap";
 
@@ -12,17 +12,11 @@ function CoverLetter() {
   const [jobDescription, setJobDescription] = useState('')
   const [hiringCompany, setHiringCompany] = useState('')
   const [positionTitle, setPositionTitle] = useState('')
-  const [characteristics, setCharacteristics] = useState(["3 years of javascript experience","leadership skills"])
-  const [toggleStates, setToggleStates] = useState([true, true]);
+  const [characteristics, setCharacteristics] = useState([])
+  const [toggleStates, setToggleStates] = useState([]);
   const [additionalInfo, setAdditionalInfo] = useState('')
-  const [coverLetter, setCoverLetter] = useState('test')
+  const [coverLetter, setCoverLetter] = useState('')
 
-  useEffect(() => {
-    // Initialize toggle states when characteristics change
-    setToggleStates(Array(characteristics.length).fill(true));
-  }, [characteristics]);
-
-  
   const handleSubmitAnalyze = async (e)=>{
     e.preventDefault()
     const {data, error} = await supabase.functions.invoke('job-desc-analysis', {
@@ -35,8 +29,8 @@ function CoverLetter() {
     //from OpenAI call.
     setHiringCompany(data.Company_Name)
     setPositionTitle(data.Job_Title)
+    setToggleStates(Array(data.Skills_and_Key_Characteristics_of_Candidate.length).fill(true))
     setCharacteristics(data.Skills_and_Key_Characteristics_of_Candidate)
-    setToggleStates(Array(characteristics.length).fill(true))
   }
 
   // Function to handle toggle switch change
@@ -67,7 +61,7 @@ function CoverLetter() {
     if(error){
       console.log(error)
     }
-    console.log(data)
+    console.log(JSON.stringify(data))
     setCoverLetter(data)
 
   }
@@ -152,9 +146,18 @@ function CoverLetter() {
           <Card>
             <CardBody>
               <h4>Cover Letter</h4>
-              <p id="cover-letter">
-                {coverLetter}
-              </p>
+              <Input
+                id = "cover-letter"
+                placeholder="Cover Letter"
+                onChange={(e) => setJobDescription(e.target.value)}
+                value={coverLetter}
+                type="textarea"
+                style={{ 
+                  minHeight: "400px",
+                  padding: "10px"
+                }}
+              />
+              <Button>Save</Button>
             </CardBody>
           </Card>              
         </div>
