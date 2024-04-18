@@ -3,9 +3,9 @@ import supabase from 'config/supabaseClient';
 
 import {Button,Input} from "reactstrap";
 
-function DescriptionLine({entry_id, description_line, onDelete, onUpdate}) {
+function DescriptionLine({entryId, descriptionWidSingle, onDelete, onUpdate}) {
   const [isEditing, setIsEditing] = useState(false);
-  const [descriptionLine, setDescription] = useState(description_line.description);
+  const [descriptionSingle, setDescriptionSingle] = useState(descriptionWidSingle.description);
 
   const handleUpdateClick = () => {
     setIsEditing(true);
@@ -16,31 +16,31 @@ function DescriptionLine({entry_id, description_line, onDelete, onUpdate}) {
     setIsEditing(false);
     const {data, error} = await supabase.functions.invoke('create-update-description', {
       body: JSON.stringify({
-        description: descriptionLine,
-        resume_entry_id: entry_id, //this is for RLS
-        description_id: description_line.description_id
+        description: descriptionSingle,
+        resumeEntryId: entryId, //this is for RLS, probably
+        descriptionId: descriptionWidSingle.description_id
       })
     })
 
     if(error){console.error(error)}
     //if(data){console.log(data)}
-    onUpdate(description_line.description_id, descriptionLine)
+    onUpdate(descriptionWidSingle.description_id, descriptionSingle)
   };
   const handleDeleteClick = async () => {
     setIsEditing(false);
     const { error } = await supabase
       .from('resume_description_embeddings')
       .delete()
-      .eq('id', description_line.description_id)
+      .eq('id', descriptionWidSingle.description_id)
     
     if(error){
       console.error(error)
     }
-    onDelete(description_line.description_id)
+    onDelete(descriptionWidSingle.description_id)
   };
 
   const handleCancelClick = () => {
-    setDescription(description_line.description)
+    setDescriptionSingle(descriptionWidSingle.description)
     setIsEditing(false)
   }
 
@@ -48,7 +48,7 @@ function DescriptionLine({entry_id, description_line, onDelete, onUpdate}) {
     <div>
       {isEditing ? (
         <div className="d-flex">
-          <Input type="text" value={descriptionLine} onChange={(e) => setDescription(e.target.value)} />
+          <Input type="text" value={descriptionSingle} onChange={(e) => setDescriptionSingle(e.target.value)} />
           <Button color="secondary" onClick={handleCancelClick} className="ml-2">
             <i className="nc-icon nc-refresh-69" />
           </Button>
@@ -58,7 +58,7 @@ function DescriptionLine({entry_id, description_line, onDelete, onUpdate}) {
         </div>
       ) : (
         <div className="d-flex justify-content-between">
-          <p className="mb-0 mr-2">{descriptionLine}</p>
+          <p className="mb-0 mr-2">{descriptionSingle}</p>
           <div className="d-flex">
             <Button color="primary" onClick={handleUpdateClick} className="mr-2">
               <i className="nc-icon nc-ruler-pencil" />

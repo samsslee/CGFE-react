@@ -2,10 +2,10 @@ import { Button, Card, Row, Col, CardBody } from "reactstrap";
 import { useState } from "react";
 
 const Collapsible =({label, children})=>{
-    const [open, setOPen] = useState(true);
+    const [open, setOpen] = useState(true);
 
     const toggle = () => {
-        setOPen(!open);
+        setOpen(!open);
       };
 
     return (

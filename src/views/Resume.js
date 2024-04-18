@@ -85,9 +85,9 @@ function Resume() {
 
         const {data} = await response.json();
         let dbEntries = data.resume_entriesCollection.edges.map(item => {
-          item.node.description_list = []
+          item.node.descriptionWids = []
           for (let edge of item.node.resume_description_embeddingsCollection.edges) {
-            item.node.description_list.push({
+            item.node.descriptionWids.push({
               description_id: edge.node.id,
               description: edge.node.description,
             });

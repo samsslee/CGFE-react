@@ -18,28 +18,28 @@ import {
 
 function AddEntry({onCreate}) {
 
-  const [position_title, setPositionTitle] = useState('')
-  const [company_name, setCompanyName] = useState('')
-  const [start_date, setStartDate] = useState('')
-  const [end_date, setEndDate] = useState('')
-  const [description_box, setDescription] = useState('')
+  const [positionTitle, setPositionTitle] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [descriptionBox, setDescription] = useState('')
   const [formError, setFormError] = useState(null)
 
   const handleSubmit = async (e)=>{
     e.preventDefault() //consider not using a form submit
 
-    if(!position_title || !company_name || !start_date || !description_box){
+    if(!positionTitle || !companyName || !startDate || !descriptionBox ||!endDate){
       setFormError('Please fill out all the required fields')
       return
     }
     
     const {data, error} = await supabase.functions.invoke('create-entry', {
       body: JSON.stringify({
-        position_title: position_title,
-        company_name: company_name,
-        start_date: start_date,
-        end_date: end_date,
-        description: description_box,
+        positionTitle: positionTitle,
+        companyName: companyName,
+        startDate: startDate,
+        endDate: endDate,
+        description: descriptionBox,
       })
     })
 
@@ -51,14 +51,14 @@ function AddEntry({onCreate}) {
     }
     //need to deal with whether or not this error logging works.
 
-    if(data.data){
+    if(data.data){ //these are underscores because they will match the DB data
       let newEntry = {
         id: data.data.id, 
         position_title: data.data.position_title,
         company_name: data.data.company_name,
         start_date: data.data.start_date,
         end_date: data.data.end_date,
-        description_list: data.data.descriptions
+        descriptionWids: data.data.descriptions
       }
 
       setFormError(null)
@@ -91,7 +91,7 @@ function AddEntry({onCreate}) {
                   <label>Position Title</label>
                   <Input
                     placeholder="eg. Assistant to the Regional Manager"
-                    value={position_title}
+                    value={positionTitle}
                     onChange={(e) => setPositionTitle(e.target.value)}
                     type="text"
                   />
@@ -101,9 +101,9 @@ function AddEntry({onCreate}) {
                 <FormGroup>
                   <label>Company Name</label>
                   <Input
-                    placeholder="ABC Company_name"
+                    placeholder="ABC Company name"
                     onChange={(e) => setCompanyName(e.target.value)}
-                    value={company_name}
+                    value={companyName}
                     type="text"
                   />
                 </FormGroup>
@@ -114,7 +114,7 @@ function AddEntry({onCreate}) {
                     <Input
                       id="startDate"
                       type="date"
-                      value={start_date}
+                      value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
                   </FormGroup>
@@ -125,7 +125,7 @@ function AddEntry({onCreate}) {
                     <Input
                       id="endDate"
                       type="date"
-                      value={end_date}
+                      value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                     />
                   </FormGroup>
@@ -137,7 +137,7 @@ function AddEntry({onCreate}) {
                   <label>Description</label>
                   <Input
                     type="textarea"
-                    value={description_box}
+                    value={descriptionBox}
                     placeholder="Increased Revenue by 40%"
                     onChange={(e) => setDescription(e.target.value)}
                   />

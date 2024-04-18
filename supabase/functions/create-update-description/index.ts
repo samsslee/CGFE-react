@@ -4,12 +4,12 @@ import { openai } from '../_shared/openai.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 import { supabase } from '../_shared/supabase.ts'
 
-serve(async (req: { method: string; json: () => PromiseLike<{ description: any; resume_entry_id: any; description_id: any; }> | { description: any; resume_entry_id: any; description_id: any; }; }) => {
+serve(async (req: { method: string; json: () => PromiseLike<{ description: any; resumeEntryId: any; descriptionId: any; }> | { description: any; resumeEntryId: any; descriptionId: any; }; }) => {
     if (req.method === "OPTIONS") {
         return new Response('ok', { headers: corsHeaders });
     }
 
-    const { description, resume_entry_id, description_id } = await req.json();
+    const { description, resumeEntryId, descriptionId } = await req.json();
 
     const embedding = await embedDescription(description);
     // Need some failure handling if the embedding fails we need to return/abort or try again.
@@ -18,11 +18,11 @@ serve(async (req: { method: string; json: () => PromiseLike<{ description: any; 
     let error: any;
 
     //need try catches everywhere!!!
-    if (description_id == null) { //then create a new one
+    if (descriptionId == null) { //then create a new one
         const { data: newData, error: newError } = await supabase
             .from('resume_description_embeddings')
             .insert([
-                { resume_entry_id: resume_entry_id, embedding: embedding, description: description },
+                { resume_entry_id: resumeEntryId, embedding: embedding, description: description },
             ])
             .select('id, description, resume_entry_id',) // Selecting specific columns
             .single()
@@ -32,7 +32,7 @@ serve(async (req: { method: string; json: () => PromiseLike<{ description: any; 
         const { data: updatedData, error: updatedError } = await supabase
             .from('resume_description_embeddings')
             .update({ description: description, embedding: embedding })
-            .eq('id', description_id)
+            .eq('id', descriptionId)
             .select('id, description, resume_entry_id') // Selecting specific columns
             .single()
         data = updatedData;

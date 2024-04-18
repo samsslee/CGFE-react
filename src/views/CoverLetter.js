@@ -31,6 +31,8 @@ function CoverLetter() {
     if(error){
       console.log(error)
     }
+
+    //from OpenAI call.
     setHiringCompany(data.Company_Name)
     setPositionTitle(data.Job_Title)
     setCharacteristics(data.Skills_and_Key_Characteristics_of_Candidate)

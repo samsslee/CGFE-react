@@ -24,7 +24,7 @@ function ResumeEntry({ entry: initialEntry, onDelete }) {
     const [concatenatedDescriptions, setConcatenatedDescriptions] = useState('');
 
     useEffect(() => {  
-        setConcatenatedDescriptions(entry.description_list
+        setConcatenatedDescriptions(entry.descriptionWids
           .map((description) => description.description)
           .join('\n')
           );
@@ -42,7 +42,7 @@ function ResumeEntry({ entry: initialEntry, onDelete }) {
         }
 
         if(data){
-            console.log(data)
+            //console.log(data)
             onDelete(entry.id)
         }
     }
@@ -105,11 +105,11 @@ function ResumeEntry({ entry: initialEntry, onDelete }) {
                         <ModalBody>
                             <UpdateEntry entry = {{
                               id: entry.id,
-                              position_title: entry.position_title,
-                              company_name: entry.company_name,
-                              start_date: entry.start_date,
-                              end_date: entry.end_date,
-                              description_list: entry.description_list
+                              positionTitle: entry.position_title,
+                              companyName: entry.company_name,
+                              startDate: entry.start_date,
+                              endDate: entry.end_date,
+                              descriptionWids: entry.descriptionWids
                             }} onUpdate={handleUpdateData}/>
                         </ModalBody>
                     </Modal>

@@ -21,31 +21,33 @@ import {
 function UpdateEntry({entry, onUpdate}) {
 
 
-  const [position_title, setPositionTitle] = useState(entry.position_title)
-  const [company_name, setCompanyName] = useState(entry.company_name)
-  const [start_date, setStartDate] = useState(entry.start_date)
-  const [end_date, setEndDate] = useState(entry.end_date)
-  const [description_list, setDescriptionList] = useState(entry.description_list)
-  const [new_description, setNewDescription] = useState("")
+  const [positionTitle, setPositionTitle] = useState(entry.positionTitle)
+  const [companyName, setCompanyName] = useState(entry.companyName)
+  const [startDate, setStartDate] = useState(entry.startDate)
+  const [endDate, setEndDate] = useState(entry.endDate)
+  const [descriptionWids, setDescriptionList] = useState(entry.descriptionWids)
+  const [newDescription, setNewDescription] = useState("")
   const [formError, setFormError] = useState(null) //make this function!
   const [isEditing, setIsEditing] = useState(false);
   const [buttonsDisabled, setButtonsDisabled] = useState(false)
 
+  //Update Entry: add another description line to the the entry
   const addNewDescription = async ()=>{
-    if(new_description == ""){
+    if(newDescription == ""){
       return
     }
     setButtonsDisabled(true)
     const {data, error} = await supabase.functions.invoke('create-update-description', {
       body: JSON.stringify({
-        description: new_description,
-        resume_entry_id: entry.id,
-        description_id: null
+        description: newDescription,
+        resumeEntryId: entry.id,
+        descriptionId: null
       })
     })
     if (error){ console.error(error)}
     if (data){
       const addedDescription = {description_id: data.data.id, description: data.data.description}
+      //underscore description_id to match database format
       handleNewDescription(addedDescription)
       setNewDescription("")
     }
@@ -72,10 +74,10 @@ function UpdateEntry({entry, onUpdate}) {
     const { data, error } = await supabase
     .from('resume_entries')
     .update({
-      position_title: position_title,
-      company_name: company_name,
-      start_date: start_date,
-      end_date: end_date
+      position_title: positionTitle,
+      company_name: companyName,
+      start_date: startDate,
+      end_date: endDate
     })
     .eq('id', entry.id)
     .select()
@@ -109,18 +111,18 @@ function UpdateEntry({entry, onUpdate}) {
 
   const handleUpdateFinished = () => {
     onUpdate({
-      company_name: company_name,
-      position_title: position_title,
-      start_date:start_date,
-      end_date:end_date,
-      description_list: description_list})
+      companyName: companyName,
+      positionTitle: positionTitle,
+      startDate:startDate,
+      endDate:endDate,
+      descriptionWids: descriptionWids})
   }
   
   const handleResetEditing = () => {
-    setPositionTitle(entry.position_title)
-    setCompanyName(entry.company_name)
-    setStartDate(entry.start_date)
-    setEndDate(entry.end_date)
+    setPositionTitle(entry.positionTitle)
+    setCompanyName(entry.companyName)
+    setStartDate(entry.startDate)
+    setEndDate(entry.endDate)
     setIsEditing(false)
     setButtonsDisabled(false)
   }
@@ -137,11 +139,11 @@ function UpdateEntry({entry, onUpdate}) {
                   {isEditing ? (                  
                   <Input
                     placeholder="eg. Assistant to the Regional Manager"
-                    value={position_title}
+                    value={positionTitle}
                     onChange={(e) => setPositionTitle(e.target.value)}
                     type="text"
                   />):(
-                    <p>{position_title}</p>
+                    <p>{positionTitle}</p>
                   )}
 
                 </FormGroup>
@@ -153,11 +155,11 @@ function UpdateEntry({entry, onUpdate}) {
                   <Input
                     placeholder="ABC Company"
                     onChange={(e) => setCompanyName(e.target.value)}
-                    value={company_name}
+                    value={companyName}
                     type="text"
                   />
                   ):(
-                    <p>{company_name}</p>
+                    <p>{companyName}</p>
                   )}
                 </FormGroup>
               </Col>
@@ -168,11 +170,11 @@ function UpdateEntry({entry, onUpdate}) {
                       <Input
                       id="startDate"
                       type="date"
-                      value={start_date}
+                      value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
                     ):(
-                      <p>{start_date}</p>
+                      <p>{startDate}</p>
                     )}
                     
                   </FormGroup>
@@ -184,11 +186,11 @@ function UpdateEntry({entry, onUpdate}) {
                       <Input
                       id="endDate"
                       type="date"
-                      value={end_date}
+                      value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                     />
                     ):(
-                      <p>{end_date}</p>
+                      <p>{endDate}</p>
                     )}
                   </FormGroup>
               </Col>
@@ -219,11 +221,11 @@ function UpdateEntry({entry, onUpdate}) {
               <Col md="12">
                 <FormGroup>
                   <label>Description</label>
-                  {description_list.map(desc => (
+                  {descriptionWids.map(desc => (
                     <DescriptionLine
                       key = {desc.description_id}
-                      entry_id = {entry.id}
-                      description_line = {desc} //includes key and description
+                      entryId = {entry.id}
+                      descriptionWidSingle = {desc} //includes key and description
                       onDelete = {handleDeleteDescription}
                       onUpdate = {handleUpdateDescription}
                       />
@@ -237,7 +239,7 @@ function UpdateEntry({entry, onUpdate}) {
                   <Input
                     placeholder="Add another description bullet"
                     onChange={(e) => setNewDescription(e.target.value)}
-                    value={new_description}
+                    value={newDescription}
                     type="text"
                   />
                 </FormGroup>

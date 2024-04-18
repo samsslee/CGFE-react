@@ -4,22 +4,22 @@ import { openai } from '../_shared/openai.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 import { supabase } from '../_shared/supabase.ts'
 
-serve(async (req: { method: string; json: () => PromiseLike<{ position_title: any; company_name: any; start_date: any; end_date: any; description: any; embed_description: any; resume_entry_id: any }> | { position_title: any; company_name: any; start_date: any; end_date: any; description: any; embed_description: any; resume_entry_id: any } }) => {
+serve(async (req: { method: string; json: () => PromiseLike<{ positionTitle: any; companyName: any; startDate: any; endDate: any; description: any; embedDescription: any; resumeEntryId: any }> | { positionTitle: any; company_name: any; startDate: any; endDate: any; description: any; embedDescription: any; resumeEntryId: any } }) => {
 
     if(req.method === "OPTIONS"){
         return new Response('ok', {headers: corsHeaders})
     }
 
-    const {position_title, company_name, start_date, end_date, description} = await req.json();
+    const {positionTitle, companyName, startDate, endDate, description} = await req.json();
 
     const descriptions = description.split("\n");
     let embeddings = await embedDescription(descriptions)
 
     const responses = await supabase.rpc('create_resume_entry',{
-        position_title: position_title,
-        company_name: company_name,
-        start_date: start_date,
-        end_date: end_date,
+        position_title: positionTitle,
+        company_name: companyName,
+        start_date: startDate,
+        end_date: endDate,
         descriptions: descriptions,
         embeddings: embeddings //should NEVER be empty
     })
