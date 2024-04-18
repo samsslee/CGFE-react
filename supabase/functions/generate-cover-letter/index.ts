@@ -27,7 +27,7 @@ serve(async (req: { method: string; json: () => PromiseLike<{ hiringCompany: any
         the position of ${positionTitle} at the company ${hiringCompany}.
     `}
 
-        My relevant work experience and/or resume: """
+        My relevant work experience: """
         ${relevantExperience}
         """
 
@@ -73,7 +73,7 @@ const compileRelevantExperience = async(positionTitle: string, characteristics: 
 
     const { data: descStatments, error } = await supabase.rpc('match_resume_description_embeddings',{
         query_embedding: embedding,
-        match_threshold: .5, //TODO: this needs to be adjusted in the future
+        match_threshold: .7, //TODO: this needs to be adjusted in the future
         match_count: 10
     })
 
@@ -82,12 +82,13 @@ const compileRelevantExperience = async(positionTitle: string, characteristics: 
     //loop through the relevant documents, limit token count to 1500
     const tokenizer = new GPT3Tokenizer({ type: 'gpt3' })
     let tokenCount = 0
+    const relevantResume = {}
     let relevantExperience = ''
-
 
     for(let i = 0; i<descStatments.length; i++){
         const descStatment = descStatments[i]
-        const description = descStatment.description;
+        const description = descStatment.description.trim();
+        const resumeEntryId = JSON.stringify(descStatment.resume_entry_id)
         const encoded = tokenizer.encode(description)
         tokenCount += encoded.text.length
 
@@ -95,7 +96,16 @@ const compileRelevantExperience = async(positionTitle: string, characteristics: 
             break
         }
 
-        relevantExperience += `${description.trim()} ---\n`
+        if (relevantResume[resumeEntryId] == undefined){
+            relevantResume[resumeEntryId] = ''.concat("As a ", descStatment.position_title, " at ", descStatment.company_name, ": ", description)
+        } else {
+            relevantResume[resumeEntryId].concat(", ", description)
+        }
     }
+
+    for (let id in relevantResume){
+        relevantExperience += relevantResume[id] + "---\n"
+    }
+
     return relevantExperience
 }
