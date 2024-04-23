@@ -16,24 +16,66 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react'
+import ReactDOM from 'react-dom'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
+import { createClient } from '@supabase/supabase-js'
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+import AdminLayout from 'layouts/Admin.js'
+import { Card, CardBody, CardTitle, Row, Col } from 'reactstrap'
+import supabase from 'config/supabaseClient'
 
-import "bootstrap/dist/css/bootstrap.css";
-import "assets/scss/paper-dashboard.scss?v=1.3.0";
-import "assets/demo/demo.css";
-import "perfect-scrollbar/css/perfect-scrollbar.css";
+import 'bootstrap/dist/css/bootstrap.css'
+import 'assets/scss/paper-dashboard.scss?v=1.3.0'
+import 'assets/demo/demo.css'
+import 'perfect-scrollbar/css/perfect-scrollbar.css'
 
-import AdminLayout from "layouts/Admin.js";
+function AuthenticatedApp() {
+  const [session, setSession] = useState(null)
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
 
-root.render(
-  <BrowserRouter>
-    <Routes>
-      <Route path="/admin/*" element={<AdminLayout />} />
-      <Route path="/" element={<Navigate to="/admin/resume" replace />} />
-    </Routes>
-  </BrowserRouter>
-);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (!session) {
+    return (
+      <div style={{ padding: '50px' }}>
+        <Row>
+          <Col md={{ size: 6, offset: 3 }}>
+                <CardTitle tag="h2">Welcome to CoverGen!</CardTitle>
+                <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} providers={[]} />
+          </Col>
+        </Row>
+      </div>
+    )
+  }
+  else {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/admin/*" element={<AdminLayout />} />
+          <Route path="/" element={<Navigate to="/admin/resume" replace />} />
+        </Routes>
+      </BrowserRouter>
+    )
+  }
+}
+
+ReactDOM.render(
+  <React.StrictMode>
+    <AuthenticatedApp />
+  </React.StrictMode>,
+  document.getElementById('root')
+)
+
