@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 
 import ResumeEntry from "components/Elements/ResumeEntry";
 import AddEntry from "components/Elements/AddEntry";
+import supabase from "config/supabaseClient";
 
 function Resume() {
 
@@ -42,62 +43,27 @@ function Resume() {
 
   const handleDelete = (id) => {
     setEntries(prevEntries => {
-      return prevEntries.filter(entry => entry.id != id)
+      return prevEntries.filter(entry => entry.entry_id != id)
     })
   }
 
   useEffect(()=>{
     const fetchEntries = async () => {
-      //console.log("resume.js useEffect fired", Date.now())
+      //fix error handling here in the try catch
       try {
-        const response = await fetch(`${process.env.REACT_APP_SUPABASE_URL}/graphql/v1`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': process.env.REACT_APP_ANON_KEY
-          },
-          body: JSON.stringify({
-            query: `
-              query{
-                resume_entriesCollection{
-                  edges{
-                    node{
-                      id,
-                      position_title,
-                      company_name,
-                      start_date,
-                      end_date
-                      resume_description_embeddingsCollection{
-                        edges{
-                          node{
-                            id,
-                            description
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `
-          })
-        });
-
-        const {data} = await response.json();
-        let dbEntries = data.resume_entriesCollection.edges.map(item => {
-          item.node.descriptionWids = []
-          for (let edge of item.node.resume_description_embeddingsCollection.edges) {
-            item.node.descriptionWids.push({
-              description_id: edge.node.id,
-              description: edge.node.description,
-            });
-          }
-          delete item.node.resume_description_embeddingsCollection;
-          return item.node;
-        });
-        setEntries(dbEntries)
+        const { data, error } = await supabase
+        .from('resume_entries')
+        .select(`
+          entry_id,
+          position_title,
+          company_name,
+          start_date,
+          end_date,
+          resume_descriptions (description_id, description)
+        `)
+        setEntries(data)
       } catch (error) {
-        //console.log(error)
+        console.log(error)
         setFetchError("there was a problem fetching your resume entries")
       }
     };
@@ -113,7 +79,7 @@ function Resume() {
         {entries && (
           <div>
             {entries.map(entry => (
-              <ResumeEntry key = {entry.id} entry = {entry} onDelete = {handleDelete}/>
+              <ResumeEntry key = {entry.entry_id} entry = {entry} onDelete = {handleDelete}/>
             ))}
             <AddEntry onCreate = {handleCreate}/>
           </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import supabase from "config/supabaseClient";
+import getAuthToken from "components/Middleware/getAuthToken";
 
 // reactstrap components
 import {
@@ -24,15 +25,24 @@ function AddEntry({onCreate}) {
   const [endDate, setEndDate] = useState('')
   const [descriptionBox, setDescription] = useState('')
   const [formError, setFormError] = useState(null)
-
+  const [buttonsDisabled, setButtonsDisabled] = useState(false)
+  
   const handleSubmit = async (e)=>{
     e.preventDefault() //consider not using a form submit
+    setButtonsDisabled(true)
 
     if(!positionTitle || !companyName || !startDate || !descriptionBox ||!endDate){
       setFormError('Please fill out all the required fields')
       return
     }
     
+    const authToken = await getAuthToken()
+
+    if (!authToken) {
+      console.error('Unable to retrieve authToken')
+      return
+    }
+
     const {data, error} = await supabase.functions.invoke('create-entry', {
       body: JSON.stringify({
         positionTitle: positionTitle,
@@ -40,10 +50,13 @@ function AddEntry({onCreate}) {
         startDate: startDate,
         endDate: endDate,
         description: descriptionBox,
-      })
+      }),
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
     })
 
-    //console.log(data.data, error, data.error)
+    // console.log("heard", response)
 
     if(error){
       console.error(error)
@@ -51,14 +64,16 @@ function AddEntry({onCreate}) {
     }
     //need to deal with whether or not this error logging works.
 
+    console.log(data)
+
     if(data.data){ //these are underscores because they will match the DB data
       let newEntry = {
-        id: data.data.id, 
+        entry_id: data.data.entry_id, 
         position_title: data.data.position_title,
         company_name: data.data.company_name,
         start_date: data.data.start_date,
         end_date: data.data.end_date,
-        descriptionWids: data.data.descriptions
+        resume_descriptions: data.data.resume_descriptions
       }
 
       setFormError(null)
@@ -74,6 +89,7 @@ function AddEntry({onCreate}) {
     setStartDate('')
     setEndDate('')
     setDescription('')
+    setButtonsDisabled(true)
   }
 
 
@@ -150,6 +166,7 @@ function AddEntry({onCreate}) {
                   className="btn-round"
                   color="primary"
                   type="submit"
+                  disabled ={buttonsDisabled}
                 >
                   Save
                 </Button>

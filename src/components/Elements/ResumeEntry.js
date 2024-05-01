@@ -23,8 +23,8 @@ function ResumeEntry({ entry: initialEntry, onDelete }) {
     const [entry, setEntry] = useState(initialEntry);
     const [concatenatedDescriptions, setConcatenatedDescriptions] = useState('');
 
-    useEffect(() => {  
-        setConcatenatedDescriptions(entry.descriptionWids
+    useEffect(() => {
+        setConcatenatedDescriptions(entry.resume_descriptions
           .map((description) => description.description)
           .join('\n')
           );
@@ -34,7 +34,7 @@ function ResumeEntry({ entry: initialEntry, onDelete }) {
         const {data, error} = await supabase
             .from('resume_entries')
             .delete()
-            .eq('id', entry.id)
+            .eq('entry_id', entry.entry_id)
             .select()
 
         if(error){
@@ -43,15 +43,17 @@ function ResumeEntry({ entry: initialEntry, onDelete }) {
 
         if(data){
             //console.log(data)
-            onDelete(entry.id)
+            onDelete(entry.entry_id)
         }
     }
 
     const handleUpdateData = async(updatedEntry) =>{
+
       setEntry((prevEntry) => {
         const newEntry = {...prevEntry, ...updatedEntry};
         return newEntry;
       });
+      console.log(entry)
       toggle()
     }
 
@@ -104,12 +106,12 @@ function ResumeEntry({ entry: initialEntry, onDelete }) {
                   <Modal size='xl' isOpen={updateEntryModal} toggle={toggle} backdrop={false}>
                         <ModalBody>
                             <UpdateEntry entry = {{
-                              id: entry.id,
+                              entryId: entry.entry_id,
                               positionTitle: entry.position_title,
                               companyName: entry.company_name,
                               startDate: entry.start_date,
                               endDate: entry.end_date,
-                              descriptionWids: entry.descriptionWids
+                              resumeDescriptions: entry.resume_descriptions
                             }} onUpdate={handleUpdateData}/>
                         </ModalBody>
                     </Modal>

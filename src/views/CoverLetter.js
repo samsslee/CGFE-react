@@ -6,6 +6,7 @@ import { Input, Button, Form, Card, Row, Col, CardBody, FormGroup } from "reacts
 
 import Collapsible from "components/Wrappers/Collapsible";
 import Switch from "react-switch";
+import getAuthToken from "components/Middleware/getAuthToken";
 
 function CoverLetter() {
 
@@ -43,19 +44,29 @@ function CoverLetter() {
   const handleSubmitGenerate = async (e)=>{
     e.preventDefault()
 
+    const authToken = await getAuthToken()
+
+    if (!authToken) {
+      console.error('Unable to retrieve authToken')
+      return
+    }
+
     const relevantCharacteristics = characteristics.filter((char, index) => {
       return toggleStates[index];
     });
 
     console.log(hiringCompany, positionTitle, relevantCharacteristics, additionalInfo)
-
+  
     const {data, error} = await supabase.functions.invoke('generate-cover-letter', {
       body: JSON.stringify({
         hiringCompany: hiringCompany,
         positionTitle: positionTitle,
         characteristics: relevantCharacteristics,
         additionalInfo: additionalInfo
-      })
+      }),
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
     })
 
     if(error){

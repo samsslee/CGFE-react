@@ -29,9 +29,9 @@ function DescriptionLine({entryId, descriptionWidSingle, onDelete, onUpdate}) {
   const handleDeleteClick = async () => {
     setIsEditing(false);
     const { error } = await supabase
-      .from('resume_description_embeddings')
+      .from('resume_descriptions')
       .delete()
-      .eq('id', descriptionWidSingle.description_id)
+      .eq('description_id', descriptionWidSingle.description_id)
     
     if(error){
       console.error(error)

@@ -2,6 +2,8 @@ import React from "react";
 import { useState } from "react";
 import supabase from "config/supabaseClient";
 import DescriptionLine from "./DescriptionLine";
+import getAuthToken from "components/Middleware/getAuthToken";
+
 
 // reactstrap components
 import {
@@ -25,7 +27,7 @@ function UpdateEntry({entry, onUpdate}) {
   const [companyName, setCompanyName] = useState(entry.companyName)
   const [startDate, setStartDate] = useState(entry.startDate)
   const [endDate, setEndDate] = useState(entry.endDate)
-  const [descriptionWids, setDescriptionList] = useState(entry.descriptionWids)
+  const [resumeDescriptions, setDescriptionList] = useState(entry.resumeDescriptions)
   const [newDescription, setNewDescription] = useState("")
   const [formError, setFormError] = useState(null) //make this function!
   const [isEditing, setIsEditing] = useState(false);
@@ -36,17 +38,28 @@ function UpdateEntry({entry, onUpdate}) {
     if(newDescription == ""){
       return
     }
+
+    const authToken = await getAuthToken()
+    if (!authToken) {
+      console.error('Unable to retrieve authToken')
+      return
+    }
+
     setButtonsDisabled(true)
     const {data, error} = await supabase.functions.invoke('create-update-description', {
+      //enforce jwt
       body: JSON.stringify({
         description: newDescription,
-        resumeEntryId: entry.id,
+        resumeEntryId: entry.entryId,
         descriptionId: null
-      })
+      }),
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
     })
     if (error){ console.error(error)}
     if (data){
-      const addedDescription = {description_id: data.data.id, description: data.data.description}
+      const addedDescription = {description_id: data.data.description_id, description: data.data.description}
       //underscore description_id to match database format
       handleNewDescription(addedDescription)
       setNewDescription("")
@@ -79,7 +92,7 @@ function UpdateEntry({entry, onUpdate}) {
       start_date: startDate,
       end_date: endDate
     })
-    .eq('id', entry.id)
+    .eq('entry_id', entry.entryId)
     .select()
     if (error){ //do error handling
       console.error(error)
@@ -110,12 +123,13 @@ function UpdateEntry({entry, onUpdate}) {
   };
 
   const handleUpdateFinished = () => {
+    //they're underscores to match the original data pulled
     onUpdate({
-      companyName: companyName,
-      positionTitle: positionTitle,
-      startDate:startDate,
-      endDate:endDate,
-      descriptionWids: descriptionWids})
+      company_name: companyName,
+      position_title: positionTitle,
+      start_date:startDate,
+      end_date:endDate,
+      resume_descriptions: resumeDescriptions})
   }
   
   const handleResetEditing = () => {
@@ -221,10 +235,10 @@ function UpdateEntry({entry, onUpdate}) {
               <Col md="12">
                 <FormGroup>
                   <label>Description</label>
-                  {descriptionWids.map(desc => (
+                  {resumeDescriptions.map(desc => (
                     <DescriptionLine
                       key = {desc.description_id}
-                      entryId = {entry.id}
+                      entryId = {entry.entryId}
                       descriptionWidSingle = {desc} //includes key and description
                       onDelete = {handleDeleteDescription}
                       onUpdate = {handleUpdateDescription}

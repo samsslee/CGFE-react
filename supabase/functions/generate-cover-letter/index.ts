@@ -1,10 +1,14 @@
 // @ts-nocheck
 import { serve } from 'https://deno.land/std@0.170.0/http/server.ts' 
 import { stripIndent, oneLine } from 'https://esm.sh/common-tags@1.8.2'
-import { supabase } from '../_shared/supabase.ts'
+//import { supabase } from '../_shared/supabase.ts'
 import { openai } from '../_shared/openai.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 import GPT3Tokenizer from 'https://esm.sh/gpt3-tokenizer@1.1.5'
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+const supUrl = Deno.env.get("SUPABASE_URL") as string
+const supKey =  Deno.env.get("SUPABASE_ANON_KEY") as string
 
 
 serve(async (req: { method: string; json: () => PromiseLike<{ hiringCompany: any; positionTitle: any; characteristics: any; additionalInfo: any }> | { hiringCompany: any; positionTitle: any; characteristics: any; additionalInfo: any } }) => {
@@ -13,6 +17,12 @@ serve(async (req: { method: string; json: () => PromiseLike<{ hiringCompany: any
         return new Response('ok', {headers: corsHeaders})
     }
 
+    if (req.method !== "POST") {
+        return new Response('Method Not Allowed', { status: 405 });
+    }
+
+    const authHeader = req.headers.get('Authorization')!
+
     const {hiringCompany, positionTitle, characteristics, additionalInfo} = await req.json();
     //FIX CAMEL CASE TO SNAKE CASE
 
@@ -20,7 +30,7 @@ serve(async (req: { method: string; json: () => PromiseLike<{ hiringCompany: any
     // implement some sort of sanitizing check here maybe like no profanity or whatever
     //clean up, can probably fix to be more suitable in the future
 
-    const relevantExperience = await compileRelevantExperience(positionTitle, characteristics)
+    const relevantExperience = await compileRelevantExperience(authHeader, positionTitle, characteristics)
 
     const prompt = stripIndent `${oneLine`
         Use or include the following information about me to write my cover letter for
@@ -56,10 +66,14 @@ serve(async (req: { method: string; json: () => PromiseLike<{ hiringCompany: any
 })
 
 
-const compileRelevantExperience = async(positionTitle: string, characteristics: any)=>{
+const compileRelevantExperience = async(authHeader: string, positionTitle: string, characteristics: any)=>{
 
     const content = positionTitle + " with the following skills and characteristics: " + characteristics
 
+    const supabase = createClient(supUrl, supKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+      
     //create an embedding for the question
     const embeddingResponse = await openai.embeddings.create({
         input: content,
