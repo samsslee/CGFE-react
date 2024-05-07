@@ -20,10 +20,18 @@
 
     &.alert-info{
         background-color: lighten($info-color, 5%);
+        color: $dark-color;
+        .close {
+            color: $dark-color;   
+        }
     }
 
     &.alert-primary{
         background-color: lighten($primary-color, 5%);
+        color: $dark-color;
+        .close {
+            color: $dark-color;   
+        }
     }
 
     .close{

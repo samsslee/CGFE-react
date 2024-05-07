@@ -21,9 +21,7 @@ import Notifications from "views/Notifications.js";
 import Icons from "views/Icons.js";
 import Typography from "views/Typography.js";
 import TableList from "views/Tables.js";
-import Maps from "views/Map.js";
 import UserPage from "views/User.js";
-import UpgradeToPro from "views/Upgrade.js";
 import Resume from "views/Resume";
 import TestQueryPage from "views/TestQueryEmbedding";
 import CoverLetter from "views/CoverLetter";
@@ -32,14 +30,14 @@ var routes = [
   {
     path: "/resume",
     name: "Resume",
-    icon: "nc-icon nc-paper",
+    icon: "nc-icon nc-bullet-list-67",
     component: <Resume />,
     layout: "/admin",
   },
   {
     path: "/cover-letter",
     name: "Create Cover Letter",
-    icon: "nc-icon nc-atom",
+    icon: "nc-icon nc-single-copy-04",
     component: <CoverLetter />,
     layout: "/admin",
   },
@@ -62,13 +60,6 @@ var routes = [
     name: "Icons",
     icon: "nc-icon nc-diamond",
     component: <Icons />,
-    layout: "/admin",
-  },
-  {
-    path: "/maps",
-    name: "Maps",
-    icon: "nc-icon nc-pin-3",
-    component: <Maps />,
     layout: "/admin",
   },
   {
@@ -97,14 +88,6 @@ var routes = [
     name: "Typography",
     icon: "nc-icon nc-caps-small",
     component: <Typography />,
-    layout: "/admin",
-  },
-  {
-    pro: true,
-    path: "/upgrade",
-    name: "Upgrade to PRO",
-    icon: "nc-icon nc-spaceship",
-    component: <UpgradeToPro />,
     layout: "/admin",
   },
 ];

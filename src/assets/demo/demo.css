@@ -67,14 +67,6 @@
   z-index: 1;
 }
 
-@media all and (min-width: 992px) {
-  .sidebar .nav > li.active-pro {
-    position: absolute;
-    width: 100%;
-    bottom: 10px;
-  }
-}
-
 .card.card-upgrade .card-category {
   max-width: 530px;
   margin: 0 auto;

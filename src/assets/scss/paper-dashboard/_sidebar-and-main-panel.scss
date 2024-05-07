@@ -154,13 +154,15 @@
         position: relative;
         padding: 7px $padding-base-horizontal;
         z-index: 4;
+        display: flex;
+        align-items: center;
 
-        a.logo-mini,
+        .logo-img,
         a.logo-normal{
             @extend .animation-transition-general;
         }
 
-        a.logo-mini{
+        .logo-img{
             opacity: 1;
             float: left;
             width: 34px;
