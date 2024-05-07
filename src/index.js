@@ -18,6 +18,7 @@
 */
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import { Auth } from '@supabase/auth-ui-react'
@@ -70,10 +71,12 @@ function AuthenticatedApp() {
   }
 }
 
-ReactDOM.render(
+const domNode = document.getElementById('root');
+const root = createRoot(domNode);
+
+root.render(
   <React.StrictMode>
     <AuthenticatedApp />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 )
 

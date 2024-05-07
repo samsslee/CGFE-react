@@ -10,14 +10,14 @@
     "chart.js": "3.9.1",
     "openai": "^4.28.4",
     "perfect-scrollbar": "1.5.5",
-    "react": ">=16.8.0",
+    "react": ">=18.3.0",
     "react-chartjs-2": "3.3.0",
-    "react-dom": ">=16.8.0",
+    "react-dom": ">=18.3.0",
     "react-notification-alert": "0.0.13",
     "react-router-dom": "6.11.1",
     "react-scripts": "^5.0.1",
     "react-switch": "^7.0.0",
-    "reactstrap": "8.10.0",
+    "reactstrap": "9.2.2",
     "sass": "1.62.1"
   },
   "scripts": {
