@@ -17,44 +17,33 @@
 
 */
 import React from "react";
+import getUserEmail from "components/Middleware/getUserEmail";
+import supabase from "config/supabaseClient";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Collapse,
   Navbar,
-  NavbarToggler,
-  NavbarBrand,
   Nav,
   NavItem,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Container,
-  InputGroup,
-  InputGroupText,
-  InputGroupAddon,
-  Input,
+  Container
 } from "reactstrap";
 
 import routes from "routes.js";
 
 function Header(props) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const [color, setColor] = React.useState("transparent");
+  const [userEmail, setUserEmail] = React.useState('')
   const sidebarToggle = React.useRef();
   const location = useLocation();
-  const toggle = () => {
-    if (isOpen) {
-      setColor("transparent");
+  
+  const getSessionEmail = async () => {
+    const sessionEmail = await getUserEmail()
+    if (!sessionEmail) {
+      console.error('Unable to retrieve user email')
+      window.location.href = "http://localhost:3000/"
     } else {
-      setColor("dark");
+      setUserEmail(sessionEmail)
     }
-    setIsOpen(!isOpen);
-  };
-  const dropdownToggle = (e) => {
-    setDropdownOpen(!dropdownOpen);
-  };
+  }
+  
   const getBrand = () => {
     let brandName = "Default Brand";
     routes.map((prop, key) => {
@@ -69,40 +58,20 @@ function Header(props) {
     document.documentElement.classList.toggle("nav-open");
     sidebarToggle.current.classList.toggle("toggled");
   };
-  // function that adds color dark/transparent to the navbar on resize (this is for the collapse)
-  const updateColor = () => {
-    if (window.innerWidth < 993 && isOpen) {
-      setColor("dark");
-    } else {
-      setColor("transparent");
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut()
+    if(error) {
+      console.log(error)
     }
+    window.location.href = "http://localhost:3000/"
   };
+  
   React.useEffect(() => {
-    window.addEventListener("resize", updateColor.bind(this));
-  });
-  React.useEffect(() => {
-    if (
-      window.innerWidth < 993 &&
-      document.documentElement.className.indexOf("nav-open") !== -1
-    ) {
-      document.documentElement.classList.toggle("nav-open");
-      sidebarToggle.current.classList.toggle("toggled");
-    }
-  }, [location]);
+    getSessionEmail()
+  },[]);
+  
   return (
-    // add or remove classes depending if we are on full-screen-maps page or not
-    <Navbar
-      color={
-        location.pathname.indexOf("full-screen-maps") !== -1 ? "dark" : color
-      }
-      expand="lg"
-      className={
-        location.pathname.indexOf("full-screen-maps") !== -1
-          ? "navbar-absolute fixed-top"
-          : "navbar-absolute fixed-top " +
-            (color === "transparent" ? "navbar-transparent " : "")
-      }
-    >
+    <Navbar>
       <Container fluid>
         <div className="navbar-wrapper">
           <div className="navbar-toggle">
@@ -117,28 +86,17 @@ function Header(props) {
               <span className="navbar-toggler-bar bar3" />
             </button>
           </div>
-          <NavbarBrand href="/">{getBrand()}</NavbarBrand>
+          <h1 class="page-title">{getBrand()}</h1>
         </div>
-        {/* 
-        THIS IS THE MOBILE TOGGLER FOR TOP MENU
-        <NavbarToggler onClick={toggle}>
-          <span className="navbar-toggler-bar navbar-kebab" />
-          <span className="navbar-toggler-bar navbar-kebab" />
-          <span className="navbar-toggler-bar navbar-kebab" />
-        </NavbarToggler> */}
-        <Collapse isOpen={isOpen} navbar className="justify-content-end">
-          <Nav navbar>
-            <NavItem>
-              {/* TODO: ADD LOGOUT */}
-              {/* <Link to="#pablo" className="nav-link btn-rotate">
-                <i className="nc-icon nc-settings-gear-65" />
-                <p>
-                  <span className="d-lg-none d-md-block">Account</span>
-                </p>
-              </Link> */}
-            </NavItem>
-          </Nav>
-        </Collapse>
+        <Nav className="justify-content-end">
+          <NavItem>
+            <div className="logout">
+              <i className="nc-icon nc-circle-10" />
+              <span className="">{userEmail}</span>
+              <button type="button" onClick={() => logout()} className="">Logout</button>
+            </div>
+          </NavItem>
+        </Nav>
       </Container>
     </Navbar>
   );

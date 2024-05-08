@@ -3,6 +3,10 @@
     padding-bottom: $navbar-padding-base;
     min-height: 53px;
     margin-bottom: 20px;
+    background-color: $transparent-bg !important;
+    box-shadow: none;
+    border-bottom: 1px solid #ddd;
+    color: $default-color;
 
     a{
         vertical-align: middle;
@@ -13,6 +17,39 @@
 
         &.dropdown-item{
             color: $default-color;
+        }
+    }
+
+    h1.page-title {
+        color: $default-color;
+        margin: 15px 10px;
+        font-size: $font-size-large-navbar
+    }
+
+    div.logout {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        i {
+            font-size: 16px;
+        }
+
+        span {
+            font-size: 10px;
+            margin-left: 5px;
+        }
+
+        button {
+            border: none;
+            font-size: 12px;
+            margin-left: 15px;
+            background: none;
+            color: $primary-states-color;
+        }
+
+        button:hover {
+            color: $primary-color;
         }
     }
 
@@ -214,36 +251,6 @@
         .navbar-toggler-bar:nth-child(2){
             width: 17px;
         }
-    }
-
-    &.navbar-transparent{
-      background-color: $transparent-bg !important;
-      box-shadow: none;
-      border-bottom: 1px solid #ddd;
-
-      a:not(.dropdown-item):not(.btn){
-        color: $default-color;
-
-        &.disabled{
-          opacity: .5;
-          color: $default-color;
-         }
-       }
-
-       .button-bar{
-           background: $default-color;
-       }
-
-      .nav-item .nav-link:not(.btn){
-        color: $default-color;
-      }
-      .nav-item.active .nav-link:not(.btn),
-      .nav-item .nav-link:not(.btn):focus,
-      .nav-item .nav-link:not(.btn):hover,
-      .nav-item .nav-link:not(.btn):focus:hover,
-      .nav-item .nav-link:not(.btn):active {
-        color: $primary-color;
-      }
     }
 
     &.bg-white {
