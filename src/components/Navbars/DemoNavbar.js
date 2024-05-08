@@ -29,6 +29,9 @@ import {
 
 import routes from "routes.js";
 
+
+//TODO: make the localhost things a variable so that it can point to an actual link
+
 function Header(props) {
   const [userEmail, setUserEmail] = React.useState('')
   const sidebarToggle = React.useRef();
@@ -86,7 +89,7 @@ function Header(props) {
               <span className="navbar-toggler-bar bar3" />
             </button>
           </div>
-          <h1 class="page-title">{getBrand()}</h1>
+          <h1 className="page-title">{getBrand()}</h1>
         </div>
         <Nav className="justify-content-end">
           <NavItem>
