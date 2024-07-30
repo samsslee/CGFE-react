@@ -10,9 +10,9 @@
     "chart.js": "3.9.1",
     "openai": "^4.28.4",
     "perfect-scrollbar": "1.5.5",
-    "react": ">=18.3.0",
+    "react": ">=16.8.0",
     "react-chartjs-2": "3.3.0",
-    "react-dom": ">=18.3.0",
+    "react-dom": ">=16.8.0",
     "react-notification-alert": "0.0.13",
     "react-router-dom": "6.11.1",
     "react-scripts": "^5.0.1",
@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "ajv": "^7.2.4",
     "supabase": "^1.148.6"
   }
 }
